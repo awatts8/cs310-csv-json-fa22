@@ -82,11 +82,13 @@ public class Converter {
                 cHeader.add(headerFields);
             }
             while(iterator.hasNext()) {
+                rows = iterator.next();
+                JSONArray data2 = new JSONArray();
                 rHeader.add(rows[0]);
                 for (int i = 1; i < rows.length; i++) {
                     data.add(Integer.parseInt(rows[i]));
                 }
-                data.add(data);
+                data.add(data2);
             }
             jsonObject.put("colheaders", cHeader);
             jsonObject.put("rowHeaders", rHeader);
@@ -120,51 +122,22 @@ public class Converter {
             JSONArray row = (JSONArray) jobject.get("rowHeaders");
             JSONArray data = (JSONArray) jobject.get("data");
             
-            //String Arrays for OpenCSV
+            
+            
             String[] csvcol = new String[col.size()];
-            String[] csvrow = new String[row.size()];
-            String[] csvdata = new String[data.size()];
-            String[] rowdata;
-            
-            //Copying column headers
             for (int i = 0; i < col.size(); i++) {
-                csvcol[i] = col.get(i) + "";
-            }
-            
-            for (int i = 0; i < row.size(); i++) {
-                
-                csvrow[i] = row.get(i) + "";
-                csvdata[i] = data.get(i) + "";
-
+                csvcol[i] = (String) col.get(i);
             }
             
             csvWriter.writeNext(csvcol);
             
-            for (int i = 0; i < csvdata.length; i++) {
+            for (int i = 0; i < data.size(); ++i) {
+                JSONArray writeData = (JSONArray) data.get(i);
+		String[] rowdata = new String[writeData.size()];
+                rowdata[0] = (String) row.get(i);
                 
-                /* Strip square brackets from next row */
-                
-                csvdata[i] = csvdata[i].replace("[","");
-                csvdata[i] = csvdata[i].replace("]","");
-                
-                /* Split csvdata[i] into row elements (using comma as delimiter) */
-
-                String[] elements = csvdata[i].split(",");
-                
-                /* Create String[] container for row data (sized at the number of row elements, plus one for row header) */
-                
-                rowdata = new String[elements.length + 1];
-                
-                /* Copy row header into first element of "rowdata" */
-
-                
-				rowdata[0] = csvrow[i];
-                
-                /* Copy row elements into remaining elements of "rowdata" */
-                
-                
-		for(int j = 1; j < csvrow.length; j++){
-                    rowdata[j] = csvrow[j];
+		for(int j = 0; j < writeData.size(); j++){
+                    rowdata[j] = Long.toString((long) writeData.get(j));
 		}
                 
                 csvWriter.writeNext(rowdata);
